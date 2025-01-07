@@ -1,7 +1,9 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ScheduleModule } from '@nestjs/schedule';
-import { CacheModule } from '@nestjs/cache-manager';
+import { CacheModule, CacheStore } from '@nestjs/cache-manager';
+import { ConfigService } from '@nestjs/config';
+import { redisStore } from 'cache-manager-redis-store';
 
 import { Rate } from './entities/rate.entity';
 import { RateHistory } from './entities/rate-history.entity';
@@ -16,12 +18,17 @@ import { RateAlertService } from './services/rate-alert.service';
   imports: [
     TypeOrmModule.forFeature([Rate, RateHistory]),
     ScheduleModule.forRoot(),
-    CacheModule.register({
-      // store: redisStore,
-      // host: 'REDIS_HOST',
-      // port: 'REDIS_PORT',
-      // isGlobal: true,
-      // ttl: 300,
+    CacheModule.registerAsync({
+      inject: [ConfigService],
+      useFactory: async (config: ConfigService) => {
+        const store = (await redisStore({
+          socket: {
+            host: config.get('REDIS_HOST'),
+            port: config.get('REDIS_PORT'),
+          },
+        })) as unknown as CacheStore;
+        return { store };
+      },
     }),
   ],
   controllers: [RateController],

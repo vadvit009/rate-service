@@ -29,7 +29,6 @@ export class RateService {
   async createRate(createRateDto: CreateRateDto): Promise<Rate> {
     try {
       const { symbol, price, from } = createRateDto;
-      console.log({ createRateDto });
 
       let rate = await this.rateRepository.findOne({ where: { symbol } });
       if (!rate) {

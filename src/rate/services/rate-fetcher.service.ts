@@ -91,7 +91,7 @@ export class RateFetcherService {
       this.fetchFromCoinMarketCap(coinMarketCapSymbols),
       this.fetchFromBinance(binanceSymbols),
     ]);
-    console.log({ data }, 'fetchAllProviders');
+
     return data.reduce(
       (acc, entry) => {
         for (const [key, value] of Object.entries(entry)) {

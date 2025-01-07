@@ -12,10 +12,9 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
       inject: [ConfigService],
       useFactory: (config: ConfigService) => {
         const url = config.get('DATABASE_URL');
-        console.log({ url }, 'asdasdasdasdas');
         return {
           type: 'postgres',
-          url: config.get('DATABASE_URL'),
+          url,
           logging: true,
           synchronize: true,
           autoLoadEntities: true,
