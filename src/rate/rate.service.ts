@@ -76,10 +76,8 @@ export class RateService {
       });
       await this.rateHistoryRepository.save(rateHistory);
 
-      const date = new Date();
       await this.updateRates(key, {
         [symbol]: price.toFixed(4),
-        timestamp: date.getTime().toString(),
       });
 
       return rate;
@@ -99,10 +97,8 @@ export class RateService {
       }
       price = rate.price;
 
-      const date = new Date();
       await this.updateRates(key, {
         [symbol]: price.toFixed(4),
-        timestamp: date.getTime().toString(),
       });
     }
     return price;
