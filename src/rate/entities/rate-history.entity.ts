@@ -18,10 +18,6 @@ export class RateHistory {
   @Column('decimal', { precision: 18, scale: 8 })
   price: number;
 
-  @Index()
-  @Column()
-  from: string;
-
   @CreateDateColumn()
   createdAt: Date;
 }
