@@ -21,7 +21,7 @@ import { RedisModule } from './redis/redis.module';
           logging: true,
           synchronize: true,
           autoLoadEntities: true,
-          schema: 'paypilot',
+          schema: 'public',
           debug: true,
         };
       },
