@@ -1,6 +1,7 @@
-import { BadGatewayException, Injectable, Logger } from '@nestjs/common';
 import axios, { AxiosError, isAxiosError } from 'axios';
+import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+
 import {
   binanceSymbols,
   coingeckoSymbols,
@@ -14,22 +15,48 @@ export class RateFetcherService {
 
   constructor(private readonly configService: ConfigService) {}
 
-  async fetchFromCoinGecko(symbols: string[]): Promise<Record<string, number>> {
+  private handleAxiosError(e: unknown, provider: string) {
+    if (isAxiosError(e)) {
+      const axiosError = e as AxiosError;
+      const { url, method, headers } = axiosError.response.config;
+      this.logger.error(
+        {
+          error: axiosError.response.data,
+          config: { url, method, headers },
+          status: axiosError.response.status,
+        },
+        `Provider [${provider}] axios error`,
+      );
+    } else {
+      this.logger.error(e, `Provider [${provider}] fetch error`);
+    }
+  }
+
+  async fetchFromCoinGecko(
+    symbols: string[],
+    fiat?: string,
+  ): Promise<Record<string, number> | void> {
     try {
       const ids = symbols.join(',');
-      const url = `https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd`;
-      const { data } = await axios.get(url);
+      const currency = fiat || 'usd';
+      const url = `https://api.coingecko.com/api/v3/simple/price`;
+      const { data } = await axios.get(url, {
+        params: {
+          ids,
+          vs_currencies: currency,
+          x_cg_demo_api_key: this.configService.get('COINGECKO_KEY'),
+        },
+      });
 
       const result: Record<string, number> = {};
       Object.entries(data).forEach(([coinId, coinData]) => {
         const normalizeSymbol = globalSymbols.coingecko[coinId];
-        result[normalizeSymbol] = (coinData as any).usd;
+        result[normalizeSymbol] = (coinData as any)[currency];
       });
 
       return result;
     } catch (error) {
-      this.logger.error('CoinGecko fetch error', error);
-      throw new BadGatewayException('Failed to fetch data from CoinGecko');
+      this.handleAxiosError(error, 'CoinGecko');
     }
   }
 
@@ -53,14 +80,16 @@ export class RateFetcherService {
         prices[normalizeSymbol] = cryptoData.quote.USD.price;
       }
     } catch (error) {
-      this.logger.error(`Error fetching ${symbols.join(',')} price:`, error);
+      this.handleAxiosError(error, 'CoinMarketCap');
     }
     return prices;
   }
 
-  async fetchFromBinance(symbols: string[]): Promise<Record<string, number>> {
+  async fetchFromBinance(
+    symbols: string[],
+  ): Promise<Record<string, number> | void> {
     try {
-      const url = `https://api3.binance.com/api/v3/ticker/price?symbols=["${symbols.join('","')}"]`;
+      const url = `https://api3.binance.com/api/v3/ticker/price?symbdols=["${symbols.join('","')}"]`;
       let prices = {};
       const { data } = await axios.get(url);
       for (const { price, symbol } of data) {
@@ -70,39 +99,30 @@ export class RateFetcherService {
 
       return prices;
     } catch (e) {
-      if (isAxiosError(e)) {
-        const axiosError = e as AxiosError;
-        this.logger.error(
-          {
-            err: axiosError.response.data,
-            u: axiosError.response.config,
-          },
-          'axios binance error',
-        );
-      } else {
-        this.logger.error(e, 'binance fetch error');
-      }
+      this.handleAxiosError(e, 'Binance');
     }
   }
 
   async fetchAllProviders() {
-    const data = await Promise.all([
+    const data = await Promise.allSettled([
       this.fetchFromCoinGecko(coingeckoSymbols),
       this.fetchFromCoinMarketCap(coinMarketCapSymbols),
       this.fetchFromBinance(binanceSymbols),
     ]);
 
-    return data.reduce(
-      (acc, entry) => {
-        for (const [key, value] of Object.entries(entry)) {
-          if (!acc[key]) {
-            acc[key] = [];
+    return data
+      .filter((el) => el.status === 'fulfilled')
+      .reduce(
+        (acc, entry) => {
+          for (const [key, value] of Object.entries(entry)) {
+            if (!acc[key]) {
+              acc[key] = [];
+            }
+            acc[key].push(value);
           }
-          acc[key].push(value);
-        }
-        return acc;
-      },
-      {} as Record<string, number[]>,
-    );
+          return acc;
+        },
+        {} as Record<string, number[]>,
+      );
   }
 }
