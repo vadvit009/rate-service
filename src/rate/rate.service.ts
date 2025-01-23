@@ -12,10 +12,10 @@ import { CreateRateDto } from './dtos/create-rate.dto';
 import { AggregatedRateDto } from './dtos/aggregated-rate.dto';
 import { SocketGateway } from '../socket/socket.gateway';
 import { RedisService } from '../redis/redis.service';
+import { RATES } from './consts/keys.const';
 
 @Injectable()
 export class RateService {
-  private readonly ratesKey = 'rates';
   constructor(
     @InjectRepository(Rate)
     private readonly rateRepository: Repository<Rate>,
@@ -27,7 +27,7 @@ export class RateService {
   ) {}
 
   async getLatest() {
-    const data = await this.redisService.getLatest(this.ratesKey);
+    const data = await this.redisService.getLatest(RATES);
     return data;
   }
 
@@ -37,7 +37,7 @@ export class RateService {
   }
 
   async getAllRates() {
-    const data = await this.redisService.hGetAll(this.ratesKey);
+    const data = await this.redisService.hGetAll(RATES);
     return data;
   }
 
@@ -86,11 +86,11 @@ export class RateService {
     }
   }
 
-  async getRate(symbol: string): Promise<number> {
+  async getRate(symbol: string): Promise<string> {
     let price = +(await this.getLatestRate(symbol));
 
-    if (price == null) {
-      const key = await this.redisService.setLatest(this.ratesKey);
+    if (!price) {
+      const key = await this.redisService.setLatest(RATES);
       const rate = await this.rateRepository.findOne({ where: { symbol } });
       if (!rate) {
         throw new NotFoundException(`Rate for symbol '${symbol}' not found`);
@@ -101,7 +101,7 @@ export class RateService {
         [symbol]: price.toFixed(4),
       });
     }
-    return price;
+    return price.toFixed(4);
   }
 
   async getHistory(symbol: string, limit = 100): Promise<RateHistory[]> {

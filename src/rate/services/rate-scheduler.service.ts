@@ -5,6 +5,7 @@ import { BigNumber } from 'bignumber.js';
 import { RateFetcherService } from './rate-fetcher.service';
 import { RateService } from '../rate.service';
 import { RedisService } from '../../redis/redis.service';
+import { RATES } from '../consts/keys.const';
 
 @Injectable()
 export class RateSchedulerService {
@@ -19,7 +20,7 @@ export class RateSchedulerService {
   @Cron(CronExpression.EVERY_MINUTE)
   async updateRates(): Promise<void> {
     this.logger.log('updateRates job started');
-    const key = await this.redisService.setLatest('rates');
+    const key = await this.redisService.setLatest(RATES);
 
     const allData = await this.fetcherService.fetchAllProviders();
 
