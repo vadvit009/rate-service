@@ -89,7 +89,7 @@ export class RateFetcherService {
     symbols: string[],
   ): Promise<Record<string, number> | void> {
     try {
-      const url = `https://api3.binance.com/api/v3/ticker/price?symbdols=["${symbols.join('","')}"]`;
+      const url = `https://api3.binance.com/api/v3/ticker/price?symbols=["${symbols.join('","')}"]`;
       let prices = {};
       const { data } = await axios.get(url);
       for (const { price, symbol } of data) {
