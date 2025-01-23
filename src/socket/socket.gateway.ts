@@ -28,10 +28,12 @@ export class SocketGateway
   }
 
   handleDisconnect(socket: Socket) {
+    this.logger.debug(`[${socket.id}] Disconnected`);
     this.socketService.handleDisconnect(socket);
   }
 
   handleConnection(socket: Socket): void {
+    this.logger.debug(`[${socket.id}] Connected`);
     this.socketService.handleConnection(socket);
   }
 
