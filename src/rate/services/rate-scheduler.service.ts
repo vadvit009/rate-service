@@ -1,5 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
+import { BigNumber } from 'bignumber.js';
+
 import { RateFetcherService } from './rate-fetcher.service';
 import { RateService } from '../rate.service';
 import { RedisService } from '../../redis/redis.service';
@@ -39,6 +41,8 @@ export class RateSchedulerService {
   }
 
   private aggregatePrices(prices: number[]) {
-    return prices.reduce((acc, el) => acc + +el, 0) / prices.length;
+    return BigNumber.sum(...prices)
+      .div(prices.length)
+      .toNumber();
   }
 }
