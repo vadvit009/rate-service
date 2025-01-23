@@ -1,9 +1,11 @@
 import {
   OnGatewayConnection,
   OnGatewayDisconnect,
+  OnGatewayInit,
   WebSocketGateway,
   WebSocketServer,
 } from '@nestjs/websockets';
+import { Logger } from '@nestjs/common';
 import { Socket } from 'socket.io';
 import { SocketService } from './socket.service';
 
@@ -12,11 +14,18 @@ import { SocketService } from './socket.service';
     origin: '*',
   },
 })
-export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
+export class SocketGateway
+  implements OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit
+{
+  logger = new Logger(SocketGateway.name);
   @WebSocketServer()
   private server: Socket;
 
   constructor(private readonly socketService: SocketService) {}
+
+  afterInit() {
+    this.logger.log('Socket gateway initialized');
+  }
 
   handleDisconnect(socket: Socket) {
     this.socketService.handleDisconnect(socket);
