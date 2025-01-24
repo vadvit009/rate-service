@@ -1,8 +1,11 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
+import { BigNumber } from 'bignumber.js';
+
 import { RateFetcherService } from './rate-fetcher.service';
 import { RateService } from '../rate.service';
-import { RateAlertService } from './rate-alert.service';
+import { RedisService } from '../../redis/redis.service';
+import { RATES } from '../consts/keys.const';
 
 @Injectable()
 export class RateSchedulerService {
@@ -11,12 +14,13 @@ export class RateSchedulerService {
   constructor(
     private readonly fetcherService: RateFetcherService,
     private readonly rateService: RateService,
-    private readonly alertService: RateAlertService,
+    private readonly redisService: RedisService,
   ) {}
 
   @Cron(CronExpression.EVERY_MINUTE)
   async updateRates(): Promise<void> {
     this.logger.log('updateRates job started');
+    const key = await this.redisService.setLatest(RATES);
 
     const allData = await this.fetcherService.fetchAllProviders();
 
@@ -29,17 +33,17 @@ export class RateSchedulerService {
         await this.rateService.createRate({
           symbol,
           price: aggregatedPrice,
-          from: 'coingecko',
+          key,
         });
-
-        this.alertService.checkThreshold(symbol, aggregatedPrice);
       }
     }
-
+    await this.rateService.triggerUpdate();
     this.logger.log('updateRates job completed');
   }
 
   private aggregatePrices(prices: number[]) {
-    return prices.reduce((acc, el) => acc + +el, 0) / prices.length;
+    return BigNumber.sum(...prices)
+      .div(prices.length)
+      .toNumber();
   }
 }

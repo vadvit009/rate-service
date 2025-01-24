@@ -1,5 +1,4 @@
 import { IsString, IsNumber, IsNotEmpty, Min, IsEnum } from 'class-validator';
-import { Providers } from '../types/rate.types';
 
 export class CreateRateDto {
   @IsString()
@@ -11,5 +10,5 @@ export class CreateRateDto {
   price: number;
 
   @IsString()
-  from: Providers;
+  key: string;
 }

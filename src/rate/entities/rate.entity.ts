@@ -18,10 +18,6 @@ export class Rate {
   @Column('decimal', { precision: 18, scale: 8 })
   price: number;
 
-  @Index()
-  @Column()
-  from: string;
-
   @UpdateDateColumn()
   updatedAt: Date;
 }

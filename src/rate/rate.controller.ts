@@ -10,6 +10,12 @@ export class RateController {
     private readonly schedulerService: RateSchedulerService,
   ) {}
 
+  @Get('/all')
+  async getAll() {
+    const rates = await this.rateService.getAllLatestRates();
+    return rates;
+  }
+
   @Get(':symbol')
   async getRate(@Param('symbol') symbol: string) {
     const price = await this.rateService.getRate(symbol);

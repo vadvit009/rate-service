@@ -1,17 +1,18 @@
 import {
   Injectable,
-  Inject,
   NotFoundException,
   InternalServerErrorException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { CACHE_MANAGER } from '@nestjs/cache-manager';
-import { Cache } from 'cache-manager';
+
 import { Rate } from './entities/rate.entity';
 import { RateHistory } from './entities/rate-history.entity';
 import { CreateRateDto } from './dtos/create-rate.dto';
 import { AggregatedRateDto } from './dtos/aggregated-rate.dto';
+import { SocketGateway } from '../socket/socket.gateway';
+import { RedisService } from '../redis/redis.service';
+import { RATES } from './consts/keys.const';
 
 @Injectable()
 export class RateService {
@@ -21,18 +22,49 @@ export class RateService {
 
     @InjectRepository(RateHistory)
     private readonly rateHistoryRepository: Repository<RateHistory>,
-
-    @Inject(CACHE_MANAGER)
-    private readonly cacheManager: Cache,
+    private readonly socketGateway: SocketGateway,
+    private readonly redisService: RedisService,
   ) {}
+
+  async getLatest() {
+    const data = await this.redisService.getLatest(RATES);
+    return data;
+  }
+
+  async updateRates(key: string, value: Record<string, string>) {
+    const data = await this.redisService.hSet(key, value);
+    return data;
+  }
+
+  async getAllRates() {
+    const data = await this.redisService.hGetAll(RATES);
+    return data;
+  }
+
+  async getLatestRate(field: string) {
+    const key = await this.getLatest();
+    const data = await this.redisService.hGet(key, field);
+    return data;
+  }
+
+  async getAllLatestRates() {
+    const key = await this.getLatest();
+    const data = await this.redisService.hGetAll(key);
+    return data;
+  }
+
+  async triggerUpdate() {
+    const data = await this.getAllLatestRates();
+    this.socketGateway.emitAllRates(data);
+  }
 
   async createRate(createRateDto: CreateRateDto): Promise<Rate> {
     try {
-      const { symbol, price, from } = createRateDto;
+      const { symbol, price, key } = createRateDto;
 
       let rate = await this.rateRepository.findOne({ where: { symbol } });
       if (!rate) {
-        rate = this.rateRepository.create({ symbol, price, from });
+        rate = this.rateRepository.create({ symbol, price });
       } else {
         rate.price = price;
       }
@@ -41,11 +73,12 @@ export class RateService {
       const rateHistory = this.rateHistoryRepository.create({
         symbol,
         price,
-        from,
       });
       await this.rateHistoryRepository.save(rateHistory);
 
-      await this.cacheManager.set(`rate:${symbol}`, price, 300); // 5 minutes
+      await this.updateRates(key, {
+        [symbol]: price.toFixed(4),
+      });
 
       return rate;
     } catch (error) {
@@ -53,20 +86,22 @@ export class RateService {
     }
   }
 
-  async getRate(symbol: string): Promise<number> {
-    const cacheKey = `rate:${symbol}`;
-    let price = await this.cacheManager.get<number>(cacheKey);
+  async getRate(symbol: string): Promise<string> {
+    let price = +(await this.getLatestRate(symbol));
 
-    if (price == null) {
+    if (!price) {
+      const key = await this.redisService.setLatest(RATES);
       const rate = await this.rateRepository.findOne({ where: { symbol } });
       if (!rate) {
         throw new NotFoundException(`Rate for symbol '${symbol}' not found`);
       }
       price = rate.price;
 
-      await this.cacheManager.set(cacheKey, price, 5 * 60 * 1000); //5min
+      await this.updateRates(key, {
+        [symbol]: price.toFixed(4),
+      });
     }
-    return price;
+    return price.toFixed(4);
   }
 
   async getHistory(symbol: string, limit = 100): Promise<RateHistory[]> {

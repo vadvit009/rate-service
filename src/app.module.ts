@@ -1,9 +1,12 @@
 import { Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { RateModule } from './rate/rate.module';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { SocketModule } from './socket/socket.module';
+import { RedisModule } from './redis/redis.module';
 
 @Module({
   imports: [
@@ -18,12 +21,14 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
           logging: true,
           synchronize: true,
           autoLoadEntities: true,
-          schema: 'paypilot',
+          schema: 'public',
           debug: true,
         };
       },
     }),
     RateModule,
+    SocketModule,
+    RedisModule,
   ],
   controllers: [AppController],
   providers: [AppService],
