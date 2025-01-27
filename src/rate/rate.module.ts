@@ -21,6 +21,6 @@ import { RedisModule } from '../redis/redis.module';
   ],
   controllers: [RateController],
   providers: [RateFetcherService, RateService, RateSchedulerService],
-  exports: [RateService],
+  exports: [RateFetcherService, RateService, RateSchedulerService],
 })
 export class RateModule {}

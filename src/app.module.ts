@@ -7,6 +7,8 @@ import { AppService } from './app.service';
 import { RateModule } from './rate/rate.module';
 import { SocketModule } from './socket/socket.module';
 import { RedisModule } from './redis/redis.module';
+import { ConvertModule } from './convert/convert.module';
+import { AssetsModule } from './assets/assets.module';
 
 @Module({
   imports: [
@@ -21,7 +23,7 @@ import { RedisModule } from './redis/redis.module';
           logging: true,
           synchronize: true,
           autoLoadEntities: true,
-          schema: 'public',
+          schema: 'paypilot',
           debug: true,
         };
       },
@@ -29,6 +31,8 @@ import { RedisModule } from './redis/redis.module';
     RateModule,
     SocketModule,
     RedisModule,
+    ConvertModule,
+    AssetsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

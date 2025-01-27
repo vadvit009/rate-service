@@ -6,6 +6,7 @@ import {
   binanceSymbols,
   coingeckoSymbols,
   coinMarketCapSymbols,
+  cryptoComSymbols,
   globalSymbols,
 } from '../consts/symbols.const';
 
@@ -35,7 +36,7 @@ export class RateFetcherService {
   async fetchFromCoinGecko(
     symbols: string[],
     fiat?: string,
-  ): Promise<Record<string, number> | void> {
+  ): Promise<Record<string, number>> {
     try {
       const ids = symbols.join(',');
       const currency = fiat || 'usd';
@@ -85,9 +86,7 @@ export class RateFetcherService {
     return prices;
   }
 
-  async fetchFromBinance(
-    symbols: string[],
-  ): Promise<Record<string, number> | void> {
+  async fetchFromBinance(symbols: string[]): Promise<Record<string, number>> {
     try {
       const url = `https://api3.binance.com/api/v3/ticker/price?symbols=["${symbols.join('","')}"]`;
       let prices = {};
@@ -103,18 +102,37 @@ export class RateFetcherService {
     }
   }
 
+  async fetchFromCryptoCom(symbols: string[]): Promise<Record<string, number>> {
+    try {
+      const url = 'https://api.crypto.com/exchange/v1/public/get-tickers';
+      let prices = {};
+      const { data } = await axios.get(url);
+      for (const { a: price, i: symbol } of data.result.data) {
+        if (symbols.includes(symbol)) {
+          const normalizeSymbol = globalSymbols.cryptoCom[symbol];
+          prices[normalizeSymbol] = +price;
+        }
+      }
+
+      return prices;
+    } catch (e) {
+      this.handleAxiosError(e, 'CryptoCom');
+    }
+  }
+
   async fetchAllProviders() {
     const data = await Promise.allSettled([
       this.fetchFromCoinGecko(coingeckoSymbols),
       this.fetchFromCoinMarketCap(coinMarketCapSymbols),
       this.fetchFromBinance(binanceSymbols),
+      this.fetchFromCryptoCom(cryptoComSymbols),
     ]);
 
     return data
       .filter((el) => el.status === 'fulfilled')
       .reduce(
         (acc, entry) => {
-          for (const [key, value] of Object.entries(entry)) {
+          for (const [key, value] of Object.entries(entry.value)) {
             if (!acc[key]) {
               acc[key] = [];
             }
