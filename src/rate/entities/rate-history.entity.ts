@@ -5,6 +5,7 @@ import {
   PrimaryGeneratedColumn,
   CreateDateColumn,
 } from 'typeorm';
+import { ApiProperty } from '@nestjs/swagger';
 
 @Entity('rate_history')
 export class RateHistory {
@@ -13,11 +14,14 @@ export class RateHistory {
 
   @Index()
   @Column()
+  @ApiProperty({ example: 'BTC' })
   symbol: string;
 
   @Column('decimal', { precision: 18, scale: 8 })
+  @ApiProperty({ example: '96000' })
   price: number;
 
   @CreateDateColumn()
+  @ApiProperty({ example: '1738243702' })
   createdAt: Date;
 }

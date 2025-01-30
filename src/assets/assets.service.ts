@@ -16,7 +16,7 @@ export class AssetsService {
   ) {}
 
   create(createAssetDto: CreateAssetDto) {
-    return this.assetRepository.insert(createAssetDto);
+    return this.assetRepository.save(createAssetDto);
   }
 
   findAll() {
