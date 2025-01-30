@@ -67,7 +67,10 @@ export class ConvertService {
         : await this.rateService.getRate(to.symbol.toUpperCase());
     this.logger.debug({ from, fromPrice, to, toPrice, convertDto });
 
-    const rate = new BigNumber(fromPrice).div(toPrice).toFixed(4);
+    const rate =
+      to.type === 'fiat'
+        ? new BigNumber(fromPrice).multipliedBy(toPrice).toFixed(4)
+        : new BigNumber(fromPrice).div(toPrice).toFixed(4);
     const result = new BigNumber(rate).multipliedBy(amount).toFixed(4);
     return { toPrice, fromPrice, rate, convertAmount: result, timestamp };
   }
