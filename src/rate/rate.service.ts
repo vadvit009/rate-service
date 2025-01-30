@@ -12,7 +12,7 @@ import { CreateRateDto } from './dtos/create-rate.dto';
 import { AggregatedRateDto } from './dtos/aggregated-rate.dto';
 import { SocketGateway } from '../socket/socket.gateway';
 import { RedisService } from '../redis/redis.service';
-import { RATES } from './consts/keys.const';
+import { RATES } from '../common/constants';
 
 @Injectable()
 export class RateService {
@@ -87,7 +87,7 @@ export class RateService {
   }
 
   async getRate(symbol: string): Promise<string> {
-    let price = +(await this.getLatestRate(symbol));
+    let price = await this.getLatestRate(symbol);
 
     if (!price) {
       const key = await this.redisService.setLatest(RATES);
@@ -95,13 +95,13 @@ export class RateService {
       if (!rate) {
         throw new NotFoundException(`Rate for symbol '${symbol}' not found`);
       }
-      price = rate.price;
+      price = rate.price.toString();
 
       await this.updateRates(key, {
-        [symbol]: price.toFixed(4),
+        [symbol]: price,
       });
     }
-    return price.toFixed(4);
+    return price;
   }
 
   async getHistory(symbol: string, limit = 100): Promise<RateHistory[]> {
