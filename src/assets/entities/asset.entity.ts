@@ -1,4 +1,5 @@
 import { Column, Entity, Index, PrimaryGeneratedColumn } from 'typeorm';
+import { AssetTypes } from '../types/asset.types';
 
 @Entity('assets')
 export class Asset {
@@ -13,6 +14,6 @@ export class Asset {
   @Column()
   name: string;
 
-  @Column()
-  type: 'fiat' | 'crypto';
+  @Column({ type: 'enum', enum: AssetTypes, default: null })
+  type: AssetTypes;
 }

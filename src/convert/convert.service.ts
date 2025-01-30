@@ -1,22 +1,17 @@
 import { BigNumber } from 'bignumber.js';
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 
-import { ConvertInDto, ConvertOutDto } from './dto/convert.dto';
+import { ConvertInDto } from './dto/convert.dto';
 import { RateService } from '../rate/rate.service';
 import { RateFetcherService } from '../rate/services/rate-fetcher.service';
 import { AssetsService } from '../assets/assets.service';
-import { globalSymbols } from '../rate/consts/symbols.const';
 import { RedisService } from '../redis/redis.service';
 import { FIAT } from '../common/constants';
+import { AssetTypes } from '../assets/types/asset.types';
 
 @Injectable()
 export class ConvertService {
   logger = new Logger(ConvertService.name);
-  private readonly fiatRates = new Map<string, string>([
-    ['usd', '1'],
-    ['eur', '0.95'],
-    // ['uah', 43],
-  ]);
 
   constructor(
     private readonly rateService: RateService,
@@ -41,7 +36,10 @@ export class ConvertService {
       throw new BadRequestException(`Currency ${convertDto.to} not supported`);
     }
 
-    if (toSupported.type === 'fiat' && fromSupported.type === 'fiat') {
+    if (
+      toSupported.type === AssetTypes.FIAT &&
+      fromSupported.type === AssetTypes.FIAT
+    ) {
       throw new BadRequestException(`Fiat-to-fiat conversion not supported`);
     }
 
@@ -57,18 +55,18 @@ export class ConvertService {
     const timestamp = Date.now();
 
     const fromPrice =
-      from.type === 'fiat'
+      from.type === AssetTypes.FIAT
         ? await this.getFiatPrice(from.symbol.toLowerCase())
         : await this.rateService.getRate(from.symbol.toUpperCase());
-
+    this.logger.debug({ ifff: to.type === AssetTypes.FIAT });
     const toPrice =
-      to.type === 'fiat'
+      to.type === AssetTypes.FIAT
         ? await this.getFiatPrice(to.symbol.toLowerCase())
         : await this.rateService.getRate(to.symbol.toUpperCase());
     this.logger.debug({ from, fromPrice, to, toPrice, convertDto });
 
     const rate =
-      to.type === 'fiat'
+      to.type === AssetTypes.FIAT
         ? new BigNumber(fromPrice).multipliedBy(toPrice).toFixed(4)
         : new BigNumber(fromPrice).div(toPrice).toFixed(4);
     const result = new BigNumber(rate).multipliedBy(amount).toFixed(4);
@@ -85,11 +83,11 @@ export class ConvertService {
 
   async fetchRateForUnknownFiat(symbol: string): Promise<string> {
     const rates = await this.rateFetcherService.fetchFromCoinGecko(
-      ['tether'],
+      ['usd'],
       symbol,
     );
     this.logger.debug({ rates, symbol });
-    const rate = rates['USDT'].toFixed(4);
+    const rate = rates['USD'].toFixed(4);
 
     await this.redisService.set(
       FIAT,
