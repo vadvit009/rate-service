@@ -52,7 +52,7 @@ export class RateFetcherService {
       const result: Record<string, number> = {};
       Object.entries(data).forEach(([coinId, coinData]) => {
         const normalizeSymbol = globalSymbols.coingecko[coinId];
-        result[normalizeSymbol] = (coinData as any)[currency];
+        result[normalizeSymbol] = coinData[currency];
       });
 
       return result;
