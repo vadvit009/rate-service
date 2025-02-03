@@ -1,5 +1,6 @@
 export const globalSymbols = {
   coingecko: {
+    usd: 'USD',
     bitcoin: 'BTC',
     ethereum: 'ETH',
     litecoin: 'LTC',

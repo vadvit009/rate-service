@@ -29,7 +29,11 @@ export class ConvertInDto {
 export class ConvertOutDto {
   @IsNumberString()
   @ApiProperty({ example: '1', type: 'string' })
-  priceUsdt: string;
+  toPrice: string;
+
+  @IsNumberString()
+  @ApiProperty({ example: '1', type: 'string' })
+  fromPrice: string;
 
   @IsNumberString()
   @ApiProperty({ example: '1', type: 'string' })
@@ -37,7 +41,7 @@ export class ConvertOutDto {
 
   @IsNumberString()
   @ApiProperty({ example: '1', type: 'string' })
-  result: string;
+  convertAmount: string;
 
   @IsDateString()
   @ApiProperty({ example: '01/30/2025, 3:12:48', type: 'number' })

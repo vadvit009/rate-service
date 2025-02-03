@@ -1,7 +1,7 @@
 import { BigNumber } from 'bignumber.js';
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 
-import { ConvertInDto } from './dto/convert.dto';
+import { ConvertInDto, ConvertOutDto } from './dto/convert.dto';
 import { RateService } from '../rate/rate.service';
 import { RateFetcherService } from '../rate/services/rate-fetcher.service';
 import { AssetsService } from '../assets/assets.service';
@@ -50,7 +50,7 @@ export class ConvertService {
     };
   }
 
-  async getConvertion(convertDto: ConvertInDto): Promise<unknown> {
+  async getConvertion(convertDto: ConvertInDto): Promise<ConvertOutDto> {
     const { from, to, amount } = await this.validateConversion(convertDto);
     const timestamp = Date.now();
 
