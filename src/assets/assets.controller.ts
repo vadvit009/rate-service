@@ -7,10 +7,10 @@ import {
   Param,
   Delete,
 } from '@nestjs/common';
+import { ApiCreatedResponse, ApiResponse } from '@nestjs/swagger';
 import { AssetsService } from './assets.service';
 import { CreateAssetDto } from './dto/create-asset.dto';
 import { UpdateAssetDto } from './dto/update-asset.dto';
-import { ApiCreatedResponse, ApiResponse } from '@nestjs/swagger';
 import { Asset } from './entities/asset.entity';
 
 @Controller('assets')
@@ -30,17 +30,20 @@ export class AssetsController {
   }
 
   @Get(':id')
+  @ApiResponse({ type: Asset })
   findOne(@Param('id') id: string) {
     return this.assetsService.findOneById(+id);
   }
 
   @Patch(':id')
+  @ApiResponse({ type: Asset })
   update(@Param('id') id: string, @Body() updateAssetDto: UpdateAssetDto) {
     return this.assetsService.update(+id, updateAssetDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.assetsService.remove(+id);
+  async remove(@Param('id') id: string) {
+    await this.assetsService.remove(+id);
+    return { message: 'Asset removed successfully' };
   }
 }

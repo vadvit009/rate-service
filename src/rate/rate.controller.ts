@@ -7,6 +7,8 @@ import { CreateRateDto } from './dtos/create-rate.dto';
 import { RateHistory } from './entities/rate-history.entity';
 import { RateAllDto } from './dtos/rate-all.dto';
 import { RateSymbolDto } from './dtos/rate-by-symbol.dto';
+import { AggregatedRateDto } from './dtos/aggregated-rate.dto';
+import { Rate } from './entities/rate.entity';
 
 @Controller('rates')
 export class RateController {
@@ -43,6 +45,7 @@ export class RateController {
   }
 
   @Get(':symbol/hourly')
+  @ApiOkResponse({ type: AggregatedRateDto, isArray: true })
   async getHourlyAggregated(
     @Param('symbol') symbol: string,
     @Query('limit') limit = 24,
@@ -51,6 +54,7 @@ export class RateController {
   }
 
   @Get(':symbol/daily')
+  @ApiOkResponse({ type: AggregatedRateDto, isArray: true })
   async getDailyAggregated(
     @Param('symbol') symbol: string,
     @Query('limit') limit = 1,
@@ -65,6 +69,7 @@ export class RateController {
   }
 
   @Post()
+  @ApiOkResponse({ type: Rate })
   async createRate(@Body() createRateDto: CreateRateDto) {
     return this.rateService.createRate(createRateDto);
   }
