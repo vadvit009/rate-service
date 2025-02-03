@@ -28,22 +28,22 @@ export class ConvertInDto {
 
 export class ConvertOutDto {
   @IsNumberString()
-  @ApiProperty({ example: '1', type: 'string' })
+  @ApiProperty({ example: '4.1400', type: 'string' })
   toPrice: string;
 
   @IsNumberString()
-  @ApiProperty({ example: '1', type: 'string' })
+  @ApiProperty({ example: '95378.2913', type: 'string' })
   fromPrice: string;
 
   @IsNumberString()
-  @ApiProperty({ example: '1', type: 'string' })
+  @ApiProperty({ example: '394866.1260', type: 'string' })
   rate: string;
 
   @IsNumberString()
-  @ApiProperty({ example: '1', type: 'string' })
+  @ApiProperty({ example: '394866.1260', type: 'string' })
   convertAmount: string;
 
   @IsDateString()
-  @ApiProperty({ example: '01/30/2025, 3:12:48', type: 'number' })
+  @ApiProperty({ example: '1738579257223', type: 'number' })
   timestamp: number;
 }
