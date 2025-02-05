@@ -15,7 +15,7 @@ export class SocketService {
     this.connectedClients.delete(clientId);
   }
 
-  emitEvent(socket: Socket, data: any) {
+  emitEvent(socket: Socket, data: unknown) {
     socket.emit('events', data);
   }
 }

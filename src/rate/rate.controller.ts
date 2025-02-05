@@ -8,7 +8,6 @@ import { RateHistory } from './entities/rate-history.entity';
 import { RateAllDto } from './dtos/rate-all.dto';
 import { RateSymbolDto } from './dtos/rate-by-symbol.dto';
 import { AggregatedRateDto } from './dtos/aggregated-rate.dto';
-import { Rate } from './entities/rate.entity';
 
 @Controller('rates')
 export class RateController {
@@ -69,7 +68,7 @@ export class RateController {
   }
 
   @Post()
-  @ApiOkResponse({ type: Rate })
+  @ApiOkResponse({ type: CreateRateDto })
   async createRate(@Body() createRateDto: CreateRateDto) {
     return this.rateService.createRate(createRateDto);
   }

@@ -11,32 +11,31 @@ import { ApiCreatedResponse, ApiResponse } from '@nestjs/swagger';
 import { AssetsService } from './assets.service';
 import { CreateAssetDto } from './dto/create-asset.dto';
 import { UpdateAssetDto } from './dto/update-asset.dto';
-import { Asset } from './entities/asset.entity';
 
 @Controller('assets')
 export class AssetsController {
   constructor(private readonly assetsService: AssetsService) {}
 
   @Post()
-  @ApiCreatedResponse({ type: Asset })
+  @ApiCreatedResponse({ type: CreateAssetDto })
   create(@Body() createAssetDto: CreateAssetDto) {
     return this.assetsService.create(createAssetDto);
   }
 
   @Get()
-  @ApiResponse({ type: Asset, isArray: true })
+  @ApiResponse({ type: CreateAssetDto, isArray: true })
   findAll() {
     return this.assetsService.findAll();
   }
 
   @Get(':id')
-  @ApiResponse({ type: Asset })
+  @ApiResponse({ type: CreateAssetDto })
   findOne(@Param('id') id: string) {
     return this.assetsService.findOneById(+id);
   }
 
   @Patch(':id')
-  @ApiResponse({ type: Asset })
+  @ApiResponse({ type: CreateAssetDto })
   update(@Param('id') id: string, @Body() updateAssetDto: UpdateAssetDto) {
     return this.assetsService.update(+id, updateAssetDto);
   }

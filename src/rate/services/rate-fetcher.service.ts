@@ -40,7 +40,8 @@ export class RateFetcherService {
     try {
       const ids = symbols.join(',');
       const currency = fiat || 'usd';
-      const url = `https://api.coingecko.com/api/v3/simple/price`;
+      const baseUrl = this.configService.get('COINGECKO_URL');
+      const url = `${baseUrl || 'https://api.coingecko.com/api/v3'}/simple/price`;
       const { data } = await axios.get(url, {
         params: {
           ids,
@@ -67,8 +68,10 @@ export class RateFetcherService {
     let prices = {};
     try {
       const apiKey = this.configService.get('CMC_API_KEY');
+      const baseUrl = this.configService.get('CMC_URL');
+
       const response = await axios.get(
-        'https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest',
+        `${baseUrl || 'https://pro-api.coinmarketcap.com/v1'}/cryptocurrency/quotes/latest`,
         {
           params: { symbol: symbols.join(',') },
           headers: { 'X-CMC_PRO_API_KEY': apiKey },
@@ -88,7 +91,8 @@ export class RateFetcherService {
 
   async fetchFromBinance(symbols: string[]): Promise<Record<string, number>> {
     try {
-      const url = `https://api3.binance.com/api/v3/ticker/price?symbols=["${symbols.join('","')}"]`;
+      const baseUrl = this.configService.get('BINANCE_URL');
+      const url = `${baseUrl || 'https://api3.binance.com/api/v3'}/ticker/price?symbols=["${symbols.join('","')}"]`;
       let prices = {};
       const { data } = await axios.get(url);
       for (const { price, symbol } of data) {
@@ -104,7 +108,8 @@ export class RateFetcherService {
 
   async fetchFromCryptoCom(symbols: string[]): Promise<Record<string, number>> {
     try {
-      const url = 'https://api.crypto.com/exchange/v1/public/get-tickers';
+      const baseUrl = this.configService.get('CRYPTOCOM_URL');
+      const url = `${baseUrl || 'https://api.crypto.com/exchange/v1'}/public/get-tickers`;
       let prices = {};
       const { data } = await axios.get(url);
       for (const { a: price, i: symbol } of data.result.data) {
