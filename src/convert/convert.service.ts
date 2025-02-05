@@ -8,6 +8,7 @@ import { AssetsService } from '../assets/assets.service';
 import { RedisService } from '../redis/redis.service';
 import { FIAT } from '../common/constants';
 import { AssetTypes } from '../assets/types/asset.types';
+import { BadRequestError } from '../exceptions';
 
 @Injectable()
 export class ConvertService {
@@ -25,22 +26,35 @@ export class ConvertService {
       symbol: convertDto.from,
     });
     if (!fromSupported) {
-      throw new BadRequestException(
-        `Currency ${convertDto.from} not supported`,
-      );
+      throw new BadRequestError([
+        {
+          field: '',
+          message: `Currency ${convertDto.from} not supported`,
+        },
+      ]);
     }
     const toSupported = await this.assetsService.findOne({
       symbol: convertDto.to,
     });
     if (!toSupported) {
-      throw new BadRequestException(`Currency ${convertDto.to} not supported`);
+      throw new BadRequestError([
+        {
+          field: '',
+          message: `Currency ${convertDto.to} not supported`,
+        },
+      ]);
     }
 
     if (
       toSupported.type === AssetTypes.FIAT &&
       fromSupported.type === AssetTypes.FIAT
     ) {
-      throw new BadRequestException(`Fiat-to-fiat conversion not supported`);
+      throw new BadRequestError([
+        {
+          field: '',
+          message: 'Fiat-to-fiat conversion not supported',
+        },
+      ]);
     }
 
     return {

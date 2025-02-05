@@ -9,6 +9,7 @@ import { SocketModule } from './socket/socket.module';
 import { RedisModule } from './redis/redis.module';
 import { ConvertModule } from './convert/convert.module';
 import { AssetsModule } from './assets/assets.module';
+import { ExceptionsModule } from './exceptions';
 
 @Module({
   imports: [
@@ -33,6 +34,10 @@ import { AssetsModule } from './assets/assets.module';
     RedisModule,
     ConvertModule,
     AssetsModule,
+    ExceptionsModule.forRoot({
+      includeValidationPipe: true,
+      serverName: 'Rate',
+    }),
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -13,6 +13,11 @@ import { AggregatedRateDto } from './dtos/aggregated-rate.dto';
 import { SocketGateway } from '../socket/socket.gateway';
 import { RedisService } from '../redis/redis.service';
 import { RATES } from '../common/constants';
+import {
+  InternalServerError,
+  NotFoundError,
+  UnprocessableEntityError,
+} from '../exceptions';
 
 @Injectable()
 export class RateService {
@@ -82,7 +87,13 @@ export class RateService {
 
       return rate;
     } catch (error) {
-      throw new InternalServerErrorException('Error creating/updating rate');
+      throw new UnprocessableEntityError([
+        {
+          field: '',
+          message: 'Error creating/updating rate',
+          details: error,
+        },
+      ]);
     }
   }
 
@@ -93,7 +104,11 @@ export class RateService {
       const key = await this.redisService.setLatest(RATES);
       const rate = await this.rateRepository.findOne({ where: { symbol } });
       if (!rate) {
-        throw new NotFoundException(`Rate for symbol '${symbol}' not found`);
+        throw new NotFoundError([
+          {
+            message: `Rate for symbol '${symbol}' not found`,
+          },
+        ]);
       }
       price = rate.price.toString();
 
@@ -149,9 +164,9 @@ export class RateService {
         averagePrice: parseFloat(item.averagePrice),
       }));
     } catch (error) {
-      throw new InternalServerErrorException(
-        'Failed to retrieve aggregated history',
-      );
+      throw new InternalServerError([
+        { message: 'Failed to retrieve aggregated history' },
+      ]);
     }
   }
 }
