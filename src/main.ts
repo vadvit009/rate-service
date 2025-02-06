@@ -26,7 +26,9 @@ async function bootstrap() {
     .setVersion('1.0')
     .build();
 
-  const documentFactory = () => SwaggerModule.createDocument(app, config);
+  const documentFactory = SwaggerModule.createDocument(app, config, {
+    operationIdFactory: (controllerKey, methodKey) => methodKey.toLowerCase(),
+  });
   SwaggerModule.setup('api', app, documentFactory);
 
   await app.listen(process.env.APP_PORT);

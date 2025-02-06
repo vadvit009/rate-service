@@ -1,4 +1,4 @@
-import { ApiOkResponse, ApiParam, ApiQuery } from '@nestjs/swagger';
+import { ApiOkResponse, ApiParam, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { Controller, Get, Param, Post, Body, Query } from '@nestjs/common';
 
 import { RateService } from './rate.service';
@@ -9,6 +9,7 @@ import { RateAllDto } from './dtos/rate-all.dto';
 import { RateSymbolDto } from './dtos/rate-by-symbol.dto';
 import { AggregatedRateDto } from './dtos/aggregated-rate.dto';
 
+@ApiTags('rates')
 @Controller('rates')
 export class RateController {
   constructor(

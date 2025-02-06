@@ -1,8 +1,9 @@
-import { ApiResponse } from '@nestjs/swagger';
+import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Controller, Post, Body } from '@nestjs/common';
 import { ConvertService } from './convert.service';
 import { ConvertInDto, ConvertOutDto } from './dto/convert.dto';
 
+@ApiTags('convert')
 @Controller('convert')
 export class ConvertController {
   constructor(private readonly convertService: ConvertService) {}
