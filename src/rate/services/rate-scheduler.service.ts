@@ -41,7 +41,7 @@ export class RateSchedulerService {
     this.logger.log('updateRates job completed');
   }
 
-  private aggregatePrices(prices: number[]) {
+  private aggregatePrices(prices: number[] | string[]) {
     return BigNumber.sum(...prices)
       .div(prices.length)
       .toNumber();

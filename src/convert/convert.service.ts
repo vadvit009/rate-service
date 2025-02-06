@@ -9,6 +9,7 @@ import { RedisService } from '../redis/redis.service';
 import { FIAT } from '../common/constants';
 import { AssetTypes } from '../assets/types/asset.types';
 import { BadRequestError } from '../exceptions';
+import { CoingeckoService } from '../providers/services';
 
 @Injectable()
 export class ConvertService {
@@ -16,7 +17,7 @@ export class ConvertService {
 
   constructor(
     private readonly rateService: RateService,
-    private readonly rateFetcherService: RateFetcherService,
+    private readonly coingeckoService: CoingeckoService,
     private readonly assetsService: AssetsService,
     private readonly redisService: RedisService,
   ) {}
@@ -72,7 +73,7 @@ export class ConvertService {
       from.type === AssetTypes.FIAT
         ? await this.getFiatPrice(from.symbol.toLowerCase())
         : await this.rateService.getRate(from.symbol.toUpperCase());
-    this.logger.debug({ ifff: to.type === AssetTypes.FIAT });
+
     const toPrice =
       to.type === AssetTypes.FIAT
         ? await this.getFiatPrice(to.symbol.toLowerCase())
@@ -96,10 +97,7 @@ export class ConvertService {
   }
 
   async fetchRateForUnknownFiat(symbol: string): Promise<string> {
-    const rates = await this.rateFetcherService.fetchFromCoinGecko(
-      ['usd'],
-      symbol,
-    );
+    const rates = await this.coingeckoService.fetchFiatRates(['usd'], symbol);
     this.logger.debug({ rates, symbol });
     const rate = rates['USD'].toFixed(4);
 

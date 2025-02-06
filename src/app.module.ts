@@ -10,6 +10,7 @@ import { RedisModule } from './redis/redis.module';
 import { ConvertModule } from './convert/convert.module';
 import { AssetsModule } from './assets/assets.module';
 import { ExceptionsModule } from './exceptions';
+import { ProvidersModule } from './providers/providers.module';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { ExceptionsModule } from './exceptions';
       includeValidationPipe: true,
       serverName: 'Rate',
     }),
+    ProvidersModule,
   ],
   controllers: [AppController],
   providers: [AppService],
