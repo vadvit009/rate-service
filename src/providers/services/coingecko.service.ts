@@ -22,8 +22,11 @@ export class CoingeckoService implements ProviderService {
   );
   readonly providerKey = this.configService.get('COINGECKO_KEY');
 
-  async fetchFiatRates(symbols = coingeckoSymbols, fiat: string = 'usd') {
-    const prices = {} as RateKeys;
+  async fetchFiatRates(
+    symbols = coingeckoSymbols,
+    fiat: string = 'usd',
+  ): Promise<RateKeys & { USD: number }> {
+    const prices = {} as RateKeys & { USD: number };
     try {
       const ids = symbols.join(',');
       const currency = fiat;
@@ -37,10 +40,12 @@ export class CoingeckoService implements ProviderService {
         },
       });
       this.logger.debug({ data, currency, symbols });
-      Object.entries(data).forEach(([coinId, coinData]) => {
-        const normalizeSymbol = globalSymbols.coingecko[coinId];
-        prices[normalizeSymbol] = coinData[currency];
-      });
+      Object.entries(data).forEach(
+        ([coinId, coinData]: [string, Record<string, string>]) => {
+          const normalizeSymbol = globalSymbols.coingecko[coinId];
+          prices[normalizeSymbol] = coinData[currency];
+        },
+      );
     } catch (e) {
       this.axiosErrorHelper.handleAxiosError(e, this.constructor.name);
     }

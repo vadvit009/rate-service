@@ -1,7 +1,7 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 import { AssetTypes } from '../../assets/types/asset.types';
 import { globalSymbols } from '../../rate/consts/symbols.const';
-import { Asset } from 'src/assets/entities/asset.entity';
+import { Asset } from '../../assets/entities/asset.entity';
 
 export class Migration1738241951400 implements MigrationInterface {
   name = 'Migration1738241951400';

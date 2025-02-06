@@ -21,7 +21,7 @@ export class RateFetcherService {
 
   private getRatesPromises() {
     const providerMode = this.configService.get<ProvidersMode>('PROVIDER');
-    let values = [];
+    const values: Promise<RateKeys>[] = [];
     if (providerMode === ProvidersMode.ALL) {
       values.push(this.binanceService.fetchRates());
       values.push(this.cryptoComService.fetchRates());

@@ -39,7 +39,7 @@ export class RedisService {
 
   async setLatest(key: string) {
     const { key: gKey, date } = this.generateKey(key);
-    const data = await this.hSet(this.latestKey, { [key]: gKey });
+    await this.hSet(this.latestKey, { [key]: gKey });
     await this.hSet(gKey, { timestamp: date.toString() });
     await this.redis.expire(`${gKey}`, this.ttl5Min);
     return gKey;

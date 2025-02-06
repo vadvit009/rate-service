@@ -9,7 +9,10 @@ const defaultError = [
   },
 ];
 
-export class UnprocessableEntityError extends UnprocessableEntityException implements IAbstractError {
+export class UnprocessableEntityError
+  extends UnprocessableEntityException
+  implements IAbstractError
+{
   constructor(private readonly pDetails: ErrorDetail[] = defaultError) {
     super();
 

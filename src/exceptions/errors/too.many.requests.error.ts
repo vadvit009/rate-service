@@ -9,7 +9,10 @@ const defaultError = [
   },
 ];
 
-export class TooManyRequestsError extends HttpException implements IAbstractError {
+export class TooManyRequestsError
+  extends HttpException
+  implements IAbstractError
+{
   private readonly pDetails: ErrorDetail[] = [];
 
   constructor(details: ErrorDetail[] = defaultError) {

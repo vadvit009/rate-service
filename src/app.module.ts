@@ -18,7 +18,7 @@ import { ProvidersModule } from './providers/providers.module';
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],
       useFactory: (config: ConfigService) => {
-        const url = config.get('DATABASE_URL');
+        const url = config.get<string>('DATABASE_URL');
         return {
           type: 'postgres',
           url,

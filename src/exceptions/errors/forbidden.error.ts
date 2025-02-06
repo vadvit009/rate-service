@@ -9,7 +9,10 @@ const defaultError = [
   },
 ];
 
-export class ForbiddenError extends ForbiddenException implements IAbstractError {
+export class ForbiddenError
+  extends ForbiddenException
+  implements IAbstractError
+{
   private readonly pDetails: ErrorDetail[] = [];
 
   constructor(details: ErrorDetail[] = defaultError) {

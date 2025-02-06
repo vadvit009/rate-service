@@ -1,9 +1,8 @@
 import { BigNumber } from 'bignumber.js';
-import { BadRequestException, Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 
 import { ConvertInDto, ConvertOutDto } from './dto/convert.dto';
 import { RateService } from '../rate/rate.service';
-import { RateFetcherService } from '../rate/services/rate-fetcher.service';
 import { AssetsService } from '../assets/assets.service';
 import { RedisService } from '../redis/redis.service';
 import { FIAT } from '../common/constants';
@@ -99,7 +98,7 @@ export class ConvertService {
   async fetchRateForUnknownFiat(symbol: string): Promise<string> {
     const rates = await this.coingeckoService.fetchFiatRates(['usd'], symbol);
     this.logger.debug({ rates, symbol });
-    const rate = rates['USD'].toFixed(4);
+    const rate = rates.USD.toFixed(4);
 
     await this.redisService.set(
       FIAT,

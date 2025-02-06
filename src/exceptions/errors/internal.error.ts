@@ -9,7 +9,10 @@ const defaultError = [
   },
 ];
 
-export class InternalServerError extends InternalServerErrorException implements IAbstractError {
+export class InternalServerError
+  extends InternalServerErrorException
+  implements IAbstractError
+{
   private readonly pDetails: ErrorDetail[] = [];
 
   constructor(details: ErrorDetail[] = defaultError) {

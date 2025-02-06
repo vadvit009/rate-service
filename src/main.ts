@@ -27,10 +27,10 @@ async function bootstrap() {
     .build();
 
   const documentFactory = SwaggerModule.createDocument(app, config, {
-    operationIdFactory: (controllerKey, methodKey) => methodKey.toLowerCase(),
+    operationIdFactory: (_, methodKey) => methodKey.toLowerCase(),
   });
   SwaggerModule.setup('api', app, documentFactory);
 
   await app.listen(process.env.APP_PORT);
 }
-bootstrap();
+void bootstrap();

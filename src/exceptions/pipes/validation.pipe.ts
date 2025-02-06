@@ -5,7 +5,10 @@ import { validate, ValidationError } from 'class-validator';
 import { BadRequestError, ErrorDetail } from '../errors';
 
 export class ClassValidationPipe implements PipeTransform {
-  async transform(value: unknown, metadata: ArgumentMetadata): Promise<unknown> {
+  async transform(
+    value: unknown,
+    metadata: ArgumentMetadata,
+  ): Promise<unknown> {
     const object = plainToInstance(metadata.metatype!, value);
     const errors = await validate(object);
     if (errors.length > 0) {

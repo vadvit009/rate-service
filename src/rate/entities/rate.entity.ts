@@ -5,7 +5,6 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { ApiProperty } from '@nestjs/swagger';
 
 @Entity('rates')
 export class Rate {

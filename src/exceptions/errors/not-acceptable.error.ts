@@ -9,7 +9,10 @@ const defaultError = [
   },
 ];
 
-export class NotAcceptableError extends NotAcceptableException implements IAbstractError {
+export class NotAcceptableError
+  extends NotAcceptableException
+  implements IAbstractError
+{
   constructor(public readonly details: ErrorDetail[] = defaultError) {
     super();
   }

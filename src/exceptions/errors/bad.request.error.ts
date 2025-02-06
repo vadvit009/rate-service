@@ -9,7 +9,10 @@ const defaultError = [
   },
 ];
 
-export class BadRequestError extends BadRequestException implements IAbstractError {
+export class BadRequestError
+  extends BadRequestException
+  implements IAbstractError
+{
   private readonly pDetails: ErrorDetail[] = [];
 
   constructor(details: ErrorDetail[] = defaultError) {
