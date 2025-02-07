@@ -78,7 +78,7 @@ export class RateService {
       await this.rateHistoryRepository.save(rateHistory);
 
       await this.updateRates(key, {
-        [symbol]: price.toFixed(4),
+        [symbol]: price.toFixed(6),
       });
 
       return rate;

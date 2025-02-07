@@ -81,9 +81,9 @@ export class ConvertService {
 
     const rate =
       to.type === AssetTypes.FIAT
-        ? new BigNumber(fromPrice).multipliedBy(toPrice).toFixed(4)
-        : new BigNumber(fromPrice).div(toPrice).toFixed(4);
-    const result = new BigNumber(rate).multipliedBy(amount).toFixed(4);
+        ? new BigNumber(fromPrice).multipliedBy(toPrice).toFixed(6)
+        : new BigNumber(fromPrice).div(toPrice).toFixed(6);
+    const result = new BigNumber(rate).multipliedBy(amount).toFixed(6);
     return { toPrice, fromPrice, rate, convertAmount: result, timestamp };
   }
 
@@ -98,7 +98,7 @@ export class ConvertService {
   async fetchRateForUnknownFiat(symbol: string): Promise<string> {
     const rates = await this.coingeckoService.fetchFiatRates(['usd'], symbol);
     this.logger.debug({ rates, symbol });
-    const rate = rates.USD.toFixed(4);
+    const rate = rates.USD.toFixed(6);
 
     await this.redisService.set(
       FIAT,
