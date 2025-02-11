@@ -11,6 +11,7 @@ import { RateSchedulerService } from './services/rate-scheduler.service';
 import { RateController } from './rate.controller';
 import { SocketModule } from '../socket/socket.module';
 import { RedisModule } from '../redis/redis.module';
+import { ProvidersModule } from '../providers/providers.module';
 
 @Module({
   imports: [
@@ -18,9 +19,10 @@ import { RedisModule } from '../redis/redis.module';
     ScheduleModule.forRoot(),
     SocketModule,
     RedisModule,
+    ProvidersModule,
   ],
   controllers: [RateController],
   providers: [RateFetcherService, RateService, RateSchedulerService],
-  exports: [RateService],
+  exports: [RateFetcherService, RateService, RateSchedulerService],
 })
 export class RateModule {}

@@ -5,7 +5,7 @@ import { BigNumber } from 'bignumber.js';
 import { RateFetcherService } from './rate-fetcher.service';
 import { RateService } from '../rate.service';
 import { RedisService } from '../../redis/redis.service';
-import { RATES } from '../consts/keys.const';
+import { RATES } from '../../common/constants';
 
 @Injectable()
 export class RateSchedulerService {
@@ -41,7 +41,7 @@ export class RateSchedulerService {
     this.logger.log('updateRates job completed');
   }
 
-  private aggregatePrices(prices: number[]) {
+  private aggregatePrices(prices: number[] | string[]) {
     return BigNumber.sum(...prices)
       .div(prices.length)
       .toNumber();

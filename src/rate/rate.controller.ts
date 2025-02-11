@@ -1,8 +1,15 @@
+import { ApiOkResponse, ApiParam, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { Controller, Get, Param, Post, Body, Query } from '@nestjs/common';
+
 import { RateService } from './rate.service';
 import { RateSchedulerService } from './services/rate-scheduler.service';
 import { CreateRateDto } from './dtos/create-rate.dto';
+import { RateHistory } from './entities/rate-history.entity';
+import { RateAllDto } from './dtos/rate-all.dto';
+import { RateSymbolDto } from './dtos/rate-by-symbol.dto';
+import { AggregatedRateDto } from './dtos/aggregated-rate.dto';
 
+@ApiTags('rates')
 @Controller('rates')
 export class RateController {
   constructor(
@@ -11,18 +18,24 @@ export class RateController {
   ) {}
 
   @Get('/all')
+  @ApiOkResponse({ type: RateAllDto })
   async getAll() {
     const rates = await this.rateService.getAllLatestRates();
     return rates;
   }
 
   @Get(':symbol')
-  async getRate(@Param('symbol') symbol: string) {
+  @ApiParam({ name: 'symbol' })
+  @ApiOkResponse({ type: RateSymbolDto })
+  async getRate(@Param('symbol') symbol: string): Promise<RateSymbolDto> {
     const price = await this.rateService.getRate(symbol);
     return { symbol, price };
   }
 
   @Get(':symbol/history')
+  @ApiParam({ name: 'symbol' })
+  @ApiQuery({ name: 'limit', required: false })
+  @ApiOkResponse({ type: RateHistory, isArray: true })
   async getHistory(
     @Param('symbol') symbol: string,
     @Query('limit') limit?: number,
@@ -32,6 +45,7 @@ export class RateController {
   }
 
   @Get(':symbol/hourly')
+  @ApiOkResponse({ type: AggregatedRateDto, isArray: true })
   async getHourlyAggregated(
     @Param('symbol') symbol: string,
     @Query('limit') limit = 24,
@@ -40,6 +54,7 @@ export class RateController {
   }
 
   @Get(':symbol/daily')
+  @ApiOkResponse({ type: AggregatedRateDto, isArray: true })
   async getDailyAggregated(
     @Param('symbol') symbol: string,
     @Query('limit') limit = 1,
@@ -54,6 +69,7 @@ export class RateController {
   }
 
   @Post()
+  @ApiOkResponse({ type: CreateRateDto })
   async createRate(@Body() createRateDto: CreateRateDto) {
     return this.rateService.createRate(createRateDto);
   }
