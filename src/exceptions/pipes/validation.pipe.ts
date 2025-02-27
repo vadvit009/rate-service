@@ -9,8 +9,11 @@ export class ClassValidationPipe implements PipeTransform {
     value: unknown,
     metadata: ArgumentMetadata,
   ): Promise<unknown> {
+    if (metadata.type === 'param' || metadata.type === 'query') {
+      return value;
+    }
     const object = plainToInstance(metadata.metatype!, value);
-    const errors = await validate(object, { skipMissingProperties: true });
+    const errors = await validate(object);
     if (errors.length > 0) {
       throw new BadRequestError(this.expandError(errors));
     }
